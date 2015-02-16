@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>chatterbox</title>
     <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/myStyles.css">
 
     <!-- dependencies -->
     <script src="bower_components/jquery/jquery.min.js"></script>
@@ -15,8 +16,10 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
+      Room Name:
+      <select id='roomSelect' onchange="setRoom(this.value)"></select>
         <div class="setUserName">
-            Choose a Username: <input class="un" type='text' name='username'>
+            Please Choose a Username: <input class="un" type='text' name='username'>
             <input type="button" value="Submit" onclick="setUserName($('.un').val())">
         </div>
         <div class="showUserName"></div>
@@ -24,7 +27,11 @@
           Message: <input class='message' type='text' name='message' >
           <input type="button" value="Submit" onclick="sendMessage(settings.username, $('.message').val(), settings.currentRoom)">
         </div>
-      <ul class="messageList"></ul>
+      <div class="messageList"></div>
     </div>
+
+    <script>
+    $('.messageInput').hide();
+    </script>
   </body>
 </html>

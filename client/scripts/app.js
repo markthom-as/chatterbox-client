@@ -1,15 +1,29 @@
 //Chat Settings
 var settings = {
   currentRoom: 'lobby',
-  username: 'anonymous'
+  username: 'anonymous', 
+}
+
+var friendList = {};
+//Adds friend to friendlist
+var addFriend = function(friendName){
+  friendList[friendName] = !friendList[friendName];
+  console.log(friendList);
+}
+
+//sets current room
+var setRoom = function(room){
+  settings.currentRoom = room;
+  console.log(settings.currentRoom);
 }
 
 
 //gets messages from server
 var getMessages = function(func, roomname){
   $.ajax({
-    url: "https://api.parse.com/1/classes/chatterbox?=order:createdAt",
+    url: "https://api.parse.com/1/classes/chatterbox",
     type: 'GET',
+    data: 'order=-createdAt',
     contentType: 'application/json',
     success: function(data){
       console.log(data);
@@ -42,18 +56,34 @@ var sendMessage = function(un, txt, rn){
 
 //displays message (callback for getMessages)
 var displayMessages = function(data, roomname){
+    var roomList = {}
+
     $('.messageList').empty();
   _.each(data.results, function(msgObj){
+    var friend = '';
+    if(friendList[msgObj.username] === true){
+      friend = 'friend';
+    }
+    roomList[msgObj.roomname] = true;
+    // if(roomname === 'undefined'){
+    //   roomname = '';
+    // }
     if(msgObj.roomname === roomname){
       $('.messageList').append(
         '<div class="message">' +
-        '<span class="username">'+ escapeInput(msgObj.username) + '</span>' + ': ' +
+        '<a class="username '+ friend + '" href="#" onclick=addFriend("'+escapeInput(msgObj.username)+'");>' + escapeInput(msgObj.username) + '</a>' + ': ' +
         '<span class="messageContent">'+ escapeInput(msgObj.text) + '</span>' + '<br>' +
         '<span class="time">'+ escapeInput(msgObj.createdAt) + '</span>' +
         '</div>'
       );
+      $("#roomSelect").empty();
+      for (var room in roomList){
+        $("#roomSelect").append('<option value='+room+'>'+room+'</option>');
+      }
+      $("#roomSelect").val(settings.currentRoom);
     }
   });
+  $('.messageInput input').empty();
 }
 
 //returns an escaped string
@@ -65,8 +95,7 @@ var escapeInput = function(str){
   div.innerHTML = str1;
   var child = div.childNodes[0];
   var finalStr = child ? child.nodeValue : '';
-
-  return finalStr;
+  return finalStr.toString();
 }
 
 //refreshes messages every 5 seconds
@@ -76,9 +105,6 @@ setInterval(function(){
 }, 1000);
 
 
-//Hides showUserName div and message send div automatically
-$('.showUserName').hide();
-$('.messageInput').hide();
 //Displays a username if one is defined, otherwise displays input field
 var setUserName = function(username){
   settings.username = username;
